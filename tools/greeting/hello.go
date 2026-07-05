@@ -1,4 +1,4 @@
-package tools
+package greeting
 
 import (
 	"context"
@@ -19,7 +19,6 @@ func Hello(
 	req *mcp.CallToolRequest,
 	in HelloInput,
 ) (*mcp.CallToolResult, HelloOutput, error) {
-
 	return nil, HelloOutput{
 		Greeting: "Hello " + in.Name + " 👋",
 	}, nil
