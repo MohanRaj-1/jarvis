@@ -62,6 +62,14 @@ func main() {
 		},
 		workspacetools.ReadFile,
 	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "list_directory",
+			Description: "Lists the immediate children of a directory",
+		},
+		workspacetools.ListDirectory,
+	)
 
 	log.Println("Jarvis starting...")
 
