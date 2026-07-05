@@ -1,4 +1,4 @@
-package tools
+package greeting
 
 import (
 	"context"
@@ -19,7 +19,6 @@ func Bye(
 	req *mcp.CallToolRequest,
 	in ByeInput,
 ) (*mcp.CallToolResult, ByeOutput, error) {
-
 	return nil, ByeOutput{
 		Farewell: "Bye " + in.Name + " 👋",
 	}, nil

@@ -4,7 +4,10 @@ import (
 	"context"
 	"log"
 
-	"jarvis/tools"
+	"jarvis/tools/greeting"
+	mathtools "jarvis/tools/math"
+	systemtools "jarvis/tools/system"
+	workspacetools "jarvis/tools/workspace"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
@@ -25,7 +28,7 @@ func main() {
 			Name:        "hello",
 			Description: "Greets a person",
 		},
-		tools.Hello,
+		greeting.Hello,
 	)
 	mcp.AddTool(
 		server,
@@ -33,7 +36,7 @@ func main() {
 			Name:        "bye",
 			Description: "Farewell a person",
 		},
-		tools.Bye,
+		greeting.Bye,
 	)
 	mcp.AddTool(
 		server,
@@ -41,7 +44,7 @@ func main() {
 			Name:        "add",
 			Description: "Add two numbers",
 		},
-		tools.Add,
+		mathtools.Add,
 	)
 	mcp.AddTool(
 		server,
@@ -49,7 +52,15 @@ func main() {
 			Name:        "weeday",
 			Description: "Gives the current day of the week",
 		},
-		tools.WeekDay,
+		systemtools.WeekDay,
+	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "read_file",
+			Description: "Reads the contents and size of a file up to 1 MB",
+		},
+		workspacetools.ReadFile,
 	)
 
 	log.Println("Jarvis starting...")

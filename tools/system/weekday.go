@@ -1,4 +1,4 @@
-package tools
+package system
 
 import (
 	"context"
@@ -18,7 +18,6 @@ func WeekDay(
 	req *mcp.CallToolRequest,
 	in WeekdayInput,
 ) (*mcp.CallToolResult, WeekdayOutput, error) {
-
 	return nil, WeekdayOutput{
 		Day: time.Now().Weekday().String(),
 	}, nil

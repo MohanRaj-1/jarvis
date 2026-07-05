@@ -1,4 +1,4 @@
-package tools
+package math
 
 import (
 	"context"
@@ -20,7 +20,6 @@ func Add(
 	req *mcp.CallToolRequest,
 	in AddInput,
 ) (*mcp.CallToolResult, AddOutput, error) {
-
 	return nil, AddOutput{
 		Result: in.A + in.B,
 	}, nil
