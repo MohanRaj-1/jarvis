@@ -70,6 +70,22 @@ func main() {
 		},
 		workspacetools.ListDirectory,
 	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "find_files",
+			Description: "Recursively finds files matching a filepath glob pattern",
+		},
+		workspacetools.FindFiles,
+	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "file_info",
+			Description: "Returns metadata for a file or directory",
+		},
+		workspacetools.FileInfo,
+	)
 
 	log.Println("Jarvis starting...")
 
