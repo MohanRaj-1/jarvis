@@ -27,6 +27,30 @@ func main() {
 		},
 		tools.Hello,
 	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "bye",
+			Description: "Farewell a person",
+		},
+		tools.Bye,
+	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "add",
+			Description: "Add two numbers",
+		},
+		tools.Add,
+	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "weeday",
+			Description: "Gives the current day of the week",
+		},
+		tools.WeekDay,
+	)
 
 	log.Println("Jarvis starting...")
 
