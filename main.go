@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	analyzertools "jarvis/tools/analyzer"
 	"jarvis/tools/greeting"
 	mathtools "jarvis/tools/math"
 	systemtools "jarvis/tools/system"
@@ -85,6 +86,22 @@ func main() {
 			Description: "Returns metadata for a file or directory",
 		},
 		workspacetools.FileInfo,
+	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "analyze_imports",
+			Description: "Extracts import paths from a Go source file",
+		},
+		analyzertools.AnalyzeImports,
+	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "analyze_go_file",
+			Description: "Extracts imports and functions from a Go source file",
+		},
+		analyzertools.AnalyzeGoFile,
 	)
 
 	log.Println("Jarvis starting...")
