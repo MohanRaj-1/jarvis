@@ -16,9 +16,13 @@ type AnalyzeGoFileInput struct {
 }
 
 type AnalyzeGoFileOutput struct {
-	Imports   []string `json:"imports"`
-	Functions []string `json:"functions"`
-	Structs   []string `json:"structs"`
+	Package    string                       `json:"package"`
+	Imports    []string                     `json:"imports"`
+	Functions  []string                     `json:"functions"`
+	Structs    []string                     `json:"structs"`
+	Methods    []internalanalyzer.Method    `json:"methods"`
+	Interfaces []internalanalyzer.Interface `json:"interfaces"`
+	Todos      []internalanalyzer.Todo      `json:"todos"`
 }
 
 func AnalyzeGoFile(
@@ -39,8 +43,12 @@ func AnalyzeGoFile(
 	}
 
 	return nil, AnalyzeGoFileOutput{
-		Imports:   analysis.Imports,
-		Functions: analysis.Functions,
-		Structs:   analysis.Structs,
+		Package:    analysis.Package,
+		Imports:    analysis.Imports,
+		Functions:  analysis.Functions,
+		Structs:    analysis.Structs,
+		Methods:    analysis.Methods,
+		Interfaces: analysis.Interfaces,
+		Todos:      analysis.Todos,
 	}, nil
 }
