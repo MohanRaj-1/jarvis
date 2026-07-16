@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	aitools "jarvis/tools/ai"
 	analyzertools "jarvis/tools/analyzer"
 	"jarvis/tools/greeting"
 	mathtools "jarvis/tools/math"
@@ -102,6 +103,14 @@ func main() {
 			Description: "Extracts imports and functions from a Go source file",
 		},
 		analyzertools.AnalyzeGoFile,
+	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "explain_go_file",
+			Description: "Explains a Go source file using Gemini",
+		},
+		aitools.ExplainGoFile,
 	)
 
 	log.Println("Jarvis starting...")
