@@ -12,15 +12,18 @@ import (
 
 const maxReadFileSize int64 = 1 * 1024 * 1024
 
+// ReadFileInput contains the path to read.
 type ReadFileInput struct {
 	Path string `json:"path" jsonschema:"Absolute or relative path to the file"`
 }
 
+// ReadFileOutput contains file content and its byte size.
 type ReadFileOutput struct {
 	Content string `json:"content"`
 	Size    int64  `json:"size"`
 }
 
+// ReadFile reads a file up to the configured size limit.
 func ReadFile(
 	ctx context.Context,
 	req *mcp.CallToolRequest,
@@ -28,7 +31,7 @@ func ReadFile(
 ) (*mcp.CallToolResult, ReadFileOutput, error) {
 
 	if strings.TrimSpace(in.Path) == "" {
-		return nil, ReadFileOutput{}, fmt.Errorf("path cannot be empty")
+		return nil, ReadFileOutput{}, fmt.Errorf("path is required; provide a path to a readable file")
 	}
 	cleanPath := filepath.Clean(in.Path)
 
@@ -38,7 +41,7 @@ func ReadFile(
 	}
 
 	if info.IsDir() {
-		return nil, ReadFileOutput{}, fmt.Errorf("%q is a directory, not a file", in.Path)
+		return nil, ReadFileOutput{}, fmt.Errorf("%q is a directory, not a file; provide a file path", in.Path)
 	}
 
 	if info.Size() > maxReadFileSize {

@@ -3,18 +3,19 @@ package analyzer
 import (
 	"context"
 	"fmt"
-	"path/filepath"
-	"strings"
 
 	internalanalyzer "jarvis/internal/analyzer"
+	"jarvis/internal/gofile"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
+// AnalyzeGoFileInput contains the Go source file to analyze.
 type AnalyzeGoFileInput struct {
 	Path string `json:"path" jsonschema:"Absolute or relative path to a Go source file"`
 }
 
+// AnalyzeGoFileOutput contains structural information extracted from a Go file.
 type AnalyzeGoFileOutput struct {
 	Package    string                       `json:"package"`
 	Imports    []string                     `json:"imports"`
@@ -25,19 +26,22 @@ type AnalyzeGoFileOutput struct {
 	Todos      []internalanalyzer.Todo      `json:"todos"`
 }
 
+// AnalyzeGoFile returns structural information for a Go source file.
 func AnalyzeGoFile(
 	ctx context.Context,
 	req *mcp.CallToolRequest,
 	in AnalyzeGoFileInput,
 ) (*mcp.CallToolResult, AnalyzeGoFileOutput, error) {
-	if strings.TrimSpace(in.Path) == "" {
-		return nil, AnalyzeGoFileOutput{}, fmt.Errorf("path cannot be empty")
+	path, err := gofile.ValidatePath(in.Path)
+	if err != nil {
+		return nil, AnalyzeGoFileOutput{}, err
 	}
 
-	analysis, err := internalanalyzer.Analyze(filepath.Clean(in.Path))
+	analysis, err := internalanalyzer.Analyze(path)
 	if err != nil {
 		return nil, AnalyzeGoFileOutput{}, fmt.Errorf(
-			"failed to analyze Go file: %w",
+			"analyze Go source file %q: %w",
+			path,
 			err,
 		)
 	}

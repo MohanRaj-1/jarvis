@@ -11,10 +11,12 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
+// FileInfoInput contains the path to inspect.
 type FileInfoInput struct {
 	Path string `json:"path" jsonschema:"Absolute or relative path to a file or directory"`
 }
 
+// FileInfoOutput contains metadata for a filesystem path.
 type FileInfoOutput struct {
 	Name     string `json:"name"`
 	Size     int64  `json:"size"`
@@ -22,13 +24,14 @@ type FileInfoOutput struct {
 	Modified string `json:"modified"`
 }
 
+// FileInfo returns metadata for a file or directory.
 func FileInfo(
 	ctx context.Context,
 	req *mcp.CallToolRequest,
 	in FileInfoInput,
 ) (*mcp.CallToolResult, FileInfoOutput, error) {
 	if strings.TrimSpace(in.Path) == "" {
-		return nil, FileInfoOutput{}, fmt.Errorf("path cannot be empty")
+		return nil, FileInfoOutput{}, fmt.Errorf("path is required; provide a file or directory path")
 	}
 
 	cleanPath := filepath.Clean(in.Path)

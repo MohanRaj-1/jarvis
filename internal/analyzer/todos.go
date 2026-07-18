@@ -1,21 +1,24 @@
 package analyzer
 
 import (
+	"fmt"
 	"go/parser"
 	"go/token"
 	"strings"
 )
 
+// Todo describes a TODO comment and its source line.
 type Todo struct {
 	Line int    `json:"line"`
 	Text string `json:"text"`
 }
 
+// ExtractTodos returns TODO comments declared in a Go source file.
 func ExtractTodos(path string) ([]Todo, error) {
 	fileSet := token.NewFileSet()
 	file, err := parser.ParseFile(fileSet, path, nil, parser.ParseComments)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("parse Go source file %q for TODO comments: %w", path, err)
 	}
 
 	todos := make([]Todo, 0)
