@@ -1,21 +1,24 @@
 package analyzer
 
 import (
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
 )
 
+// Interface describes an interface declared in a Go source file.
 type Interface struct {
 	Name    string   `json:"name"`
 	Methods []string `json:"methods"`
 }
 
+// ExtractInterfaces returns interfaces declared in a Go source file.
 func ExtractInterfaces(path string) ([]Interface, error) {
 	fileSet := token.NewFileSet()
 	file, err := parser.ParseFile(fileSet, path, nil, 0)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("parse Go source file %q: %w", path, err)
 	}
 
 	interfaces := make([]Interface, 0)

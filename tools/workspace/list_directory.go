@@ -10,26 +10,30 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
+// ListDirectoryInput contains the directory path to list.
 type ListDirectoryInput struct {
 	Path string `json:"path" jsonschema:"Absolute or relative directory path"`
 }
 
+// DirectoryEntry describes a directory child.
 type DirectoryEntry struct {
 	Name  string `json:"name"`
 	IsDir bool   `json:"is_dir"`
 }
 
+// ListDirectoryOutput contains the immediate children of a directory.
 type ListDirectoryOutput struct {
 	Entries []DirectoryEntry `json:"entries"`
 }
 
+// ListDirectory lists the immediate children of a directory.
 func ListDirectory(
 	ctx context.Context,
 	req *mcp.CallToolRequest,
 	in ListDirectoryInput,
 ) (*mcp.CallToolResult, ListDirectoryOutput, error) {
 	if strings.TrimSpace(in.Path) == "" {
-		return nil, ListDirectoryOutput{}, fmt.Errorf("path cannot be empty")
+		return nil, ListDirectoryOutput{}, fmt.Errorf("path is required; provide a directory path")
 	}
 
 	cleanPath := filepath.Clean(in.Path)
@@ -45,7 +49,7 @@ func ListDirectory(
 
 	if !info.IsDir() {
 		return nil, ListDirectoryOutput{}, fmt.Errorf(
-			"%q is a file, not a directory",
+			"%q is a file, not a directory; provide a directory path",
 			cleanPath,
 		)
 	}

@@ -51,10 +51,10 @@ func main() {
 	mcp.AddTool(
 		server,
 		&mcp.Tool{
-			Name:        "weeday",
+			Name:        "weekday",
 			Description: "Gives the current day of the week",
 		},
-		systemtools.WeekDay,
+		systemtools.Weekday,
 	)
 	mcp.AddTool(
 		server,

@@ -1,16 +1,18 @@
 package analyzer
 
 import (
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
 )
 
+// ExtractStructs returns structs declared in a Go source file.
 func ExtractStructs(path string) ([]string, error) {
 	fileSet := token.NewFileSet()
 	file, err := parser.ParseFile(fileSet, path, nil, 0)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("parse Go source file %q: %w", path, err)
 	}
 
 	structs := make([]string, 0)

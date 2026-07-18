@@ -2,22 +2,25 @@ package analyzer
 
 import (
 	"bytes"
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/printer"
 	"go/token"
 )
 
+// Method describes a method declared in a Go source file.
 type Method struct {
 	Receiver string `json:"receiver"`
 	Name     string `json:"name"`
 }
 
+// ExtractMethods returns methods declared in a Go source file.
 func ExtractMethods(path string) ([]Method, error) {
 	fileSet := token.NewFileSet()
 	file, err := parser.ParseFile(fileSet, path, nil, 0)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("parse Go source file %q: %w", path, err)
 	}
 
 	methods := make([]Method, 0)
@@ -50,7 +53,7 @@ func ExtractMethods(path string) ([]Method, error) {
 		return false
 	})
 	if extractErr != nil {
-		return nil, extractErr
+		return nil, fmt.Errorf("extract method receiver types from %q: %w", path, extractErr)
 	}
 
 	return methods, nil
@@ -59,7 +62,7 @@ func ExtractMethods(path string) ([]Method, error) {
 func receiverType(fileSet *token.FileSet, expression ast.Expr) (string, error) {
 	var buffer bytes.Buffer
 	if err := printer.Fprint(&buffer, fileSet, expression); err != nil {
-		return "", err
+		return "", fmt.Errorf("format receiver type: %w", err)
 	}
 
 	return buffer.String(), nil
