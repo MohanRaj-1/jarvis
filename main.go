@@ -6,6 +6,7 @@ import (
 
 	aitools "jarvis/tools/ai"
 	analyzertools "jarvis/tools/analyzer"
+	gittools "jarvis/tools/git"
 	"jarvis/tools/greeting"
 	mathtools "jarvis/tools/math"
 	systemtools "jarvis/tools/system"
@@ -103,6 +104,14 @@ func main() {
 			Description: "Extracts imports and functions from a Go source file",
 		},
 		analyzertools.AnalyzeGoFile,
+	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "git_current_branch",
+			Description: "Returns the current branch of a Git repository",
+		},
+		gittools.CurrentBranch,
 	)
 	mcp.AddTool(
 		server,
