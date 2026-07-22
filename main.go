@@ -124,6 +124,14 @@ func main() {
 	mcp.AddTool(
 		server,
 		&mcp.Tool{
+			Name:        "git_branches",
+			Description: "Returns the current branch and all local branches of a Git repository",
+		},
+		gittools.RepositoryBranches,
+	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
 			Name:        "explain_go_file",
 			Description: "Explains a Go source file using Gemini",
 		},
