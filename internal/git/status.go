@@ -2,10 +2,7 @@ package git
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 	"sort"
-	"strings"
 
 	gitlib "github.com/go-git/go-git/v5"
 )
@@ -20,22 +17,9 @@ type Status struct {
 
 // RepositoryStatus returns the current branch and changed files in repoPath.
 func RepositoryStatus(repoPath string) (*Status, error) {
-	if strings.TrimSpace(repoPath) == "" {
-		return nil, fmt.Errorf("repository path is required")
-	}
-
-	cleanPath := filepath.Clean(repoPath)
-	info, err := os.Stat(cleanPath)
+	repository, cleanPath, err := openRepository(repoPath)
 	if err != nil {
-		return nil, fmt.Errorf("access repository path %q: %w", cleanPath, err)
-	}
-	if !info.IsDir() {
-		return nil, fmt.Errorf("repository path %q is not a directory", cleanPath)
-	}
-
-	repository, err := gitlib.PlainOpen(cleanPath)
-	if err != nil {
-		return nil, fmt.Errorf("open Git repository %q: %w", cleanPath, err)
+		return nil, err
 	}
 
 	head, err := repository.Head()

@@ -2,12 +2,8 @@ package git
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 	"sort"
-	"strings"
 
-	gitlib "github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 )
 
@@ -19,22 +15,9 @@ type BranchesResult struct {
 
 // RepositoryBranches returns the current branch and all local branches in repoPath.
 func RepositoryBranches(repoPath string) (*BranchesResult, error) {
-	if strings.TrimSpace(repoPath) == "" {
-		return nil, fmt.Errorf("repository path is required")
-	}
-
-	cleanPath := filepath.Clean(repoPath)
-	info, err := os.Stat(cleanPath)
+	repository, cleanPath, err := openRepository(repoPath)
 	if err != nil {
-		return nil, fmt.Errorf("access repository path %q: %w", cleanPath, err)
-	}
-	if !info.IsDir() {
-		return nil, fmt.Errorf("repository path %q is not a directory", cleanPath)
-	}
-
-	repository, err := gitlib.PlainOpen(cleanPath)
-	if err != nil {
-		return nil, fmt.Errorf("open Git repository %q: %w", cleanPath, err)
+		return nil, err
 	}
 
 	head, err := repository.Head()
