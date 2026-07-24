@@ -140,6 +140,14 @@ func main() {
 	mcp.AddTool(
 		server,
 		&mcp.Tool{
+			Name:        "git_show_commit",
+			Description: "Returns detailed information about a Git commit",
+		},
+		gittools.ShowCommit,
+	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
 			Name:        "explain_go_file",
 			Description: "Explains a Go source file using Gemini",
 		},
