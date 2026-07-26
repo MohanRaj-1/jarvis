@@ -15,7 +15,7 @@ func TestRepositoryBranches(t *testing.T) {
 		t.Fatalf("PlainInit(%q) returned an error: %v", repoPath, err)
 	}
 
-	for _, name := range []string{"develop", "feature/git-intelligence"} {
+	for _, name := range []string{"develop", "feature/git-intelligence", "master"} {
 		branch := plumbing.NewBranchReferenceName(name)
 		if err := repository.Storer.SetReference(plumbing.NewHashReference(branch, plumbing.ZeroHash)); err != nil {
 			t.Fatalf("set branch reference %q: %v", name, err)
