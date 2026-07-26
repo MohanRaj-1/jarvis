@@ -124,6 +124,14 @@ func main() {
 	mcp.AddTool(
 		server,
 		&mcp.Tool{
+			Name:        "git_diff",
+			Description: "Returns the current working tree diff of a Git repository",
+		},
+		gittools.Diff,
+	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
 			Name:        "git_branches",
 			Description: "Returns the current branch and all local branches of a Git repository",
 		},
