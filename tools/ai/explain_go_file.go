@@ -3,8 +3,6 @@ package ai
 import (
 	"context"
 	"fmt"
-	"os"
-	"strings"
 
 	internalai "jarvis/internal/ai"
 	"jarvis/internal/gofile"
@@ -12,12 +10,9 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-const defaultGeminiModel = "gemini-3.5-flash"
-
-// ExplainGoFileInput contains the Go source file and optional Gemini model to use.
+// ExplainGoFileInput contains the Go source file to explain.
 type ExplainGoFileInput struct {
-	Path  string `json:"path" jsonschema:"Absolute or relative path to a Go source file"`
-	Model string `json:"model,omitempty" jsonschema:"Optional Gemini model name; defaults to gemini-3.5-flash"`
+	Path string `json:"path" jsonschema:"Absolute or relative path to a Go source file"`
 }
 
 // ExplainGoFileOutput contains the generated source-code explanation.
@@ -25,35 +20,19 @@ type ExplainGoFileOutput struct {
 	Explanation string `json:"explanation"`
 }
 
-// ExplainGoFile explains a Go source file with Gemini.
-func ExplainGoFile(
-	ctx context.Context,
-	req *mcp.CallToolRequest,
-	in ExplainGoFileInput,
-) (*mcp.CallToolResult, ExplainGoFileOutput, error) {
-	path, err := gofile.ValidatePath(in.Path)
-	if err != nil {
-		return nil, ExplainGoFileOutput{}, err
-	}
+// NewExplainGoFile returns an MCP tool that uses the injected AI client.
+func NewExplainGoFile(client internalai.Client) func(context.Context, *mcp.CallToolRequest, ExplainGoFileInput) (*mcp.CallToolResult, ExplainGoFileOutput, error) {
+	return func(ctx context.Context, _ *mcp.CallToolRequest, in ExplainGoFileInput) (*mcp.CallToolResult, ExplainGoFileOutput, error) {
+		path, err := gofile.ValidatePath(in.Path)
+		if err != nil {
+			return nil, ExplainGoFileOutput{}, err
+		}
 
-	model := strings.TrimSpace(in.Model)
-	if model == "" {
-		model = defaultGeminiModel
-	}
+		explanation, err := internalai.ExplainFile(ctx, client, path)
+		if err != nil {
+			return nil, ExplainGoFileOutput{}, fmt.Errorf("explain Go source file %q: %w", path, err)
+		}
 
-	client, err := internalai.NewClient(ctx, internalai.Config{
-		Provider: internalai.ProviderGemini,
-		APIKey:   os.Getenv("GEMINI_API_KEY"),
-		Model:    model,
-	})
-	if err != nil {
-		return nil, ExplainGoFileOutput{}, fmt.Errorf("configure Gemini for Go file explanation: %w", err)
+		return nil, ExplainGoFileOutput{Explanation: explanation}, nil
 	}
-
-	explanation, err := internalai.ExplainFile(ctx, client, path)
-	if err != nil {
-		return nil, ExplainGoFileOutput{}, fmt.Errorf("explain Go source file %q: %w", path, err)
-	}
-
-	return nil, ExplainGoFileOutput{Explanation: explanation}, nil
 }

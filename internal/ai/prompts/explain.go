@@ -1,4 +1,4 @@
-package ai
+package prompts
 
 import (
 	"encoding/json"
@@ -7,8 +7,8 @@ import (
 	"jarvis/internal/analyzer"
 )
 
-// BuildExplainPrompt creates the structured prompt used to explain Go source files.
-func BuildExplainPrompt(analysis *analyzer.Analysis, source string) string {
+// ExplainGoFilePrompt creates the structured prompt used to explain Go source files.
+func ExplainGoFilePrompt(analysis *analyzer.Analysis, source string) string {
 	analysisJSON, err := json.MarshalIndent(analysis, "", "  ")
 	if err != nil {
 		analysisJSON = []byte("null")
