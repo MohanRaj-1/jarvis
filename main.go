@@ -3,7 +3,12 @@ package main
 import (
 	"context"
 	"log"
+	"os"
+	"strings"
 
+	internalai "jarvis/internal/ai"
+	aigit "jarvis/internal/ai/git"
+	internalgit "jarvis/internal/git"
 	aitools "jarvis/tools/ai"
 	analyzertools "jarvis/tools/analyzer"
 	gittools "jarvis/tools/git"
@@ -16,6 +21,19 @@ import (
 )
 
 func main() {
+	aiClient, err := internalai.NewClient(context.Background(), internalai.Config{
+		Provider: internalai.ProviderGemini,
+		APIKey:   os.Getenv("GEMINI_API_KEY"),
+		Model:    geminiModel(),
+	})
+	if err != nil {
+		log.Fatalf("initialize AI client: %v", err)
+	}
+
+	commitMessageService := aigit.CommitMessageService{
+		Git: internalgit.DefaultRepository{},
+		AI:  aiClient,
+	}
 
 	server := mcp.NewServer(
 		&mcp.Implementation{
@@ -156,10 +174,18 @@ func main() {
 	mcp.AddTool(
 		server,
 		&mcp.Tool{
-			Name:        "explain_go_file",
-			Description: "Explains a Go source file using Gemini",
+			Name:        "git_generate_commit_message",
+			Description: "Generates a Conventional Commit message from a Git working tree diff",
 		},
-		aitools.ExplainGoFile,
+		gittools.NewGenerateCommitMessage(commitMessageService),
+	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "explain_go_file",
+			Description: "Explains a Go source file using the configured AI provider",
+		},
+		aitools.NewExplainGoFile(aiClient),
 	)
 
 	log.Println("Jarvis starting...")
@@ -170,4 +196,12 @@ func main() {
 	); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func geminiModel() string {
+	if model := strings.TrimSpace(os.Getenv("GEMINI_MODEL")); model != "" {
+		return model
+	}
+
+	return "gemini-3.6-flash"
 }

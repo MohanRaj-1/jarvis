@@ -4,7 +4,7 @@ import (
 	"context"
 )
 
-// Client generates content from prompts.
+// Client represents an AI provider.
 type Client interface {
 	Generate(ctx context.Context, prompt string) (string, error)
 }

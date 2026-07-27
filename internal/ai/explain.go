@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 
+	"jarvis/internal/ai/prompts"
 	"jarvis/internal/analyzer"
 )
 
@@ -25,7 +26,7 @@ func ExplainFile(ctx context.Context, client Client, path string) (string, error
 		return "", fmt.Errorf("analyze Go source file %q: %w", path, err)
 	}
 
-	prompt := BuildExplainPrompt(analysis, string(source))
+	prompt := prompts.ExplainGoFilePrompt(analysis, string(source))
 	explanation, err := client.Generate(ctx, prompt)
 	if err != nil {
 		return "", fmt.Errorf("generate explanation for Go source file %q: %w", path, err)
