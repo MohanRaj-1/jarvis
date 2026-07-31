@@ -34,6 +34,10 @@ func main() {
 		Git: internalgit.DefaultRepository{},
 		AI:  aiClient,
 	}
+	explainCommitService := aigit.ExplainCommitService{
+		Git: internalgit.DefaultRepository{},
+		AI:  aiClient,
+	}
 
 	server := mcp.NewServer(
 		&mcp.Implementation{
@@ -178,6 +182,14 @@ func main() {
 			Description: "Generates a Conventional Commit message from a Git working tree diff",
 		},
 		gittools.NewGenerateCommitMessage(commitMessageService),
+	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "git_explain_commit",
+			Description: "Explains what a Git commit changed and why it matters",
+		},
+		gittools.NewExplainCommit(explainCommitService),
 	)
 	mcp.AddTool(
 		server,
