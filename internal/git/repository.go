@@ -14,6 +14,7 @@ import (
 // repository.
 type Repository interface {
 	Diff(repoPath string) (string, error)
+	Show(repoPath, hash string) (*CommitDetails, error)
 }
 
 // DefaultRepository is the production Repository implementation.
@@ -22,6 +23,11 @@ type DefaultRepository struct{}
 // Diff returns the working tree diff for repoPath.
 func (DefaultRepository) Diff(repoPath string) (string, error) {
 	return Diff(repoPath)
+}
+
+// Show returns details for hash in repoPath.
+func (DefaultRepository) Show(repoPath, hash string) (*CommitDetails, error) {
+	return Show(repoPath, hash)
 }
 
 // openRepository validates repoPath and opens the Git repository it contains.

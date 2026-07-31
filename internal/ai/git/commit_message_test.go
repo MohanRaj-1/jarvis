@@ -7,14 +7,20 @@ import (
 	"testing"
 
 	"jarvis/internal/ai/git"
+	internalgit "jarvis/internal/git"
 )
 
 type fakeRepository struct {
-	diff string
-	err  error
+	diff    string
+	err     error
+	commit  *internalgit.CommitDetails
+	showErr error
 }
 
 func (r fakeRepository) Diff(string) (string, error) { return r.diff, r.err }
+func (r fakeRepository) Show(string, string) (*internalgit.CommitDetails, error) {
+	return r.commit, r.showErr
+}
 
 type fakeAI struct {
 	message string
