@@ -29,6 +29,33 @@ Git diff:
 %s`, diff)
 }
 
+// ReviewDiffPrompt creates the prompt used to review a Git working tree diff.
+func ReviewDiffPrompt(diff string) string {
+	return fmt.Sprintf(`You are a senior Go engineer performing a code review.
+
+Review the following Git diff.
+
+Return ONLY valid JSON.
+
+{
+  "summary": "...",
+  "strengths": [],
+  "issues": [],
+  "suggestions": [],
+  "overall_score": 0
+}
+
+Rules:
+- Review only the supplied diff.
+- Do not invent missing code.
+- Keep suggestions practical.
+- If no issues exist, return an empty array.
+- "overall_score" must be an integer from 1 to 10.
+
+Git diff:
+%s`, diff)
+}
+
 // ExplainCommitPrompt creates a readable, grounded prompt from commit details.
 func ExplainCommitPrompt(commit *internalgit.CommitDetails) string {
 	var files strings.Builder

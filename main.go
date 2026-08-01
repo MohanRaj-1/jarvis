@@ -38,6 +38,10 @@ func main() {
 		Git: internalgit.DefaultRepository{},
 		AI:  aiClient,
 	}
+	reviewDiffService := aigit.ReviewDiffService{
+		Git: internalgit.DefaultRepository{},
+		AI:  aiClient,
+	}
 
 	server := mcp.NewServer(
 		&mcp.Implementation{
@@ -190,6 +194,14 @@ func main() {
 			Description: "Explains what a Git commit changed and why it matters",
 		},
 		gittools.NewExplainCommit(explainCommitService),
+	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "git_review_diff",
+			Description: "Reviews the current working tree diff and returns a structured report",
+		},
+		gittools.NewReviewDiff(reviewDiffService),
 	)
 	mcp.AddTool(
 		server,
