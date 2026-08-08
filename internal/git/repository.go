@@ -15,6 +15,7 @@ import (
 type Repository interface {
 	Diff(repoPath string) (string, error)
 	Show(repoPath, hash string) (*CommitDetails, error)
+	LogRange(repoPath, from, to string) ([]ReleaseCommit, error)
 }
 
 // DefaultRepository is the production Repository implementation.
@@ -28,6 +29,11 @@ func (DefaultRepository) Diff(repoPath string) (string, error) {
 // Show returns details for hash in repoPath.
 func (DefaultRepository) Show(repoPath, hash string) (*CommitDetails, error) {
 	return Show(repoPath, hash)
+}
+
+// LogRange returns commits reachable from to but not from from.
+func (DefaultRepository) LogRange(repoPath, from, to string) ([]ReleaseCommit, error) {
+	return LogRange(repoPath, from, to)
 }
 
 // openRepository validates repoPath and opens the Git repository it contains.
