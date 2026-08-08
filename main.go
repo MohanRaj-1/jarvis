@@ -42,6 +42,10 @@ func main() {
 		Git: internalgit.DefaultRepository{},
 		AI:  aiClient,
 	}
+	releaseNotesService := aigit.ReleaseNotesService{
+		Git: internalgit.DefaultRepository{},
+		AI:  aiClient,
+	}
 
 	server := mcp.NewServer(
 		&mcp.Implementation{
@@ -202,6 +206,14 @@ func main() {
 			Description: "Reviews the current working tree diff and returns a structured report",
 		},
 		gittools.NewReviewDiff(reviewDiffService),
+	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "git_generate_release_notes",
+			Description: "Generates structured release notes from a Git commit range",
+		},
+		gittools.NewGenerateReleaseNotes(releaseNotesService),
 	)
 	mcp.AddTool(
 		server,

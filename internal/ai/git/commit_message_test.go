@@ -15,11 +15,16 @@ type fakeRepository struct {
 	err     error
 	commit  *internalgit.CommitDetails
 	showErr error
+	commits []internalgit.ReleaseCommit
+	logErr  error
 }
 
 func (r fakeRepository) Diff(string) (string, error) { return r.diff, r.err }
 func (r fakeRepository) Show(string, string) (*internalgit.CommitDetails, error) {
 	return r.commit, r.showErr
+}
+func (r fakeRepository) LogRange(string, string, string) ([]internalgit.ReleaseCommit, error) {
+	return r.commits, r.logErr
 }
 
 type fakeAI struct {

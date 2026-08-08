@@ -72,3 +72,45 @@ func TestLogUsesDefaultLimitAndRejectsNegativeLimit(t *testing.T) {
 		t.Error("Log with an invalid repository path returned nil error")
 	}
 }
+
+func TestLogRange(t *testing.T) {
+	repoPath := t.TempDir()
+	repository, err := gitlib.PlainInit(repoPath, false)
+	if err != nil {
+		t.Fatalf("PlainInit(%q) returned an error: %v", repoPath, err)
+	}
+	worktree, err := repository.Worktree()
+	if err != nil {
+		t.Fatalf("Worktree() returned an error: %v", err)
+	}
+
+	commit := func(message string) string {
+		writeStatusTestFile(t, repoPath, "file.txt", message)
+		if _, err := worktree.Add("file.txt"); err != nil {
+			t.Fatalf("add file: %v", err)
+		}
+		hash, err := worktree.Commit(message, &gitlib.CommitOptions{Author: &object.Signature{Name: "Mohan Raj", Email: "mohan@example.com", When: time.Now()}})
+		if err != nil {
+			t.Fatalf("commit file: %v", err)
+		}
+		return hash.String()
+	}
+
+	from := commit("first commit")
+	commit("second commit")
+	to := commit("third commit")
+
+	commits, err := LogRange(repoPath, from, to)
+	if err != nil {
+		t.Fatalf("LogRange() error = %v", err)
+	}
+	if len(commits) != 2 || commits[0].Message != "third commit" || commits[1].Message != "second commit" {
+		t.Errorf("LogRange() = %#v, want commits after first in reverse chronological order", commits)
+	}
+	if len(commits[0].ChangedFiles) != 1 || commits[0].ChangedFiles[0].Status != "Modified" {
+		t.Errorf("LogRange().ChangedFiles = %#v, want one modified file", commits[0].ChangedFiles)
+	}
+	if _, err := LogRange(repoPath, "missing", "HEAD"); err == nil {
+		t.Error("LogRange() with an unknown start revision returned nil error")
+	}
+}
