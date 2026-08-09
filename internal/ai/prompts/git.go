@@ -116,6 +116,11 @@ Rules:
 - "features", "fixes", "changes", and "breaking_changes" must be arrays of concise strings.
 - Keep each release-note item under 200 characters.
 - Put new capabilities in "features", bug corrections in "fixes", improvements in "changes", and incompatible behavior in "breaking_changes".
+- Each change should normally appear in only one category.
+- Do not duplicate the same change across categories.
+- Only classify a change as an improvement when the supplied evidence shows an improvement to existing functionality.
+- Do not classify a newly added feature as an improvement simply because it uses or extends existing functionality.
+- Do not infer improvements, fixes, or breaking changes that are not supported by the supplied commit information.
 - Do not invent changes beyond the supplied commits.
 - If a category has no entries, return an empty array.
 - Combine related commits and ignore trivial formatting-only changes.

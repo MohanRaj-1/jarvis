@@ -39,6 +39,71 @@ func TestReleaseNotesServiceGenerateReleaseNotes(t *testing.T) {
 	}
 }
 
+func TestReleaseNotesServiceCategorizedResponses(t *testing.T) {
+	tests := []struct {
+		name         string
+		commits      []internalgit.ReleaseCommit
+		response     string
+		wantFeatures bool
+		wantFixes    bool
+		wantChanges  bool
+	}{
+		{
+			name: "features",
+			commits: []internalgit.ReleaseCommit{
+				{Message: "feat(git): add repository status"},
+				{Message: "feat(ai): add commit message generation"},
+			},
+			response:     `{"summary":"Adds repository status and commit message generation.","features":["Added repository status.","Added commit message generation."],"fixes":[],"changes":[],"breaking_changes":[]}`,
+			wantFeatures: true,
+		},
+		{
+			name:      "fix",
+			commits:   []internalgit.ReleaseCommit{{Message: "fix(ai): handle malformed Gemini response"}},
+			response:  `{"summary":"Improves handling of malformed Gemini responses.","features":[],"fixes":["Handle malformed Gemini responses."],"changes":[],"breaking_changes":[]}`,
+			wantFixes: true,
+		},
+		{
+			name: "mixed",
+			commits: []internalgit.ReleaseCommit{
+				{Message: "feat(git): add diff review"},
+				{Message: "fix(git): handle empty diff"},
+				{Message: "refactor(ai): extract prompt builder"},
+			},
+			response:     `{"summary":"Adds diff review and improves Git tooling.","features":["Added diff review."],"fixes":["Handle empty diffs."],"changes":["Refactored prompt builder."],"breaking_changes":[]}`,
+			wantFeatures: true,
+			wantFixes:    true,
+			wantChanges:  true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			service := git.ReleaseNotesService{
+				Git: fakeRepository{commits: tt.commits},
+				AI:  &fakeAI{message: tt.response},
+			}
+
+			notes, err := service.GenerateReleaseNotes(context.Background(), "/repo", "v0.5.2", "HEAD")
+			if err != nil {
+				t.Fatalf("GenerateReleaseNotes() error = %v", err)
+			}
+			if (len(notes.Features) > 0) != tt.wantFeatures {
+				t.Errorf("Features = %#v, want non-empty = %t", notes.Features, tt.wantFeatures)
+			}
+			if (len(notes.Fixes) > 0) != tt.wantFixes {
+				t.Errorf("Fixes = %#v, want non-empty = %t", notes.Fixes, tt.wantFixes)
+			}
+			if (len(notes.Changes) > 0) != tt.wantChanges {
+				t.Errorf("Changes = %#v, want non-empty = %t", notes.Changes, tt.wantChanges)
+			}
+			if len(notes.BreakingChanges) != 0 {
+				t.Errorf("BreakingChanges = %#v, want empty", notes.BreakingChanges)
+			}
+		})
+	}
+}
+
 func TestReleaseNotesServiceGenerateReleaseNotesErrors(t *testing.T) {
 	tests := []struct {
 		name    string
