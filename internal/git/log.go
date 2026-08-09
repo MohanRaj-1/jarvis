@@ -119,7 +119,7 @@ func LogRange(repoPath, from, to string) ([]ReleaseCommit, error) {
 			return err
 		}
 		commits = append(commits, ReleaseCommit{
-			Hash:         commit.Hash.String()[:7],
+			Hash:         commit.Hash.String(),
 			Author:       commit.Author.Name,
 			Date:         commit.Author.When,
 			Message:      commit.Message,
