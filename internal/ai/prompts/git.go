@@ -106,16 +106,18 @@ func ReleaseNotesPrompt(from, to string, commits []internalgit.ReleaseCommit) st
 
 	return fmt.Sprintf(`You are a technical writer preparing software release notes.
 
-Summarize the supplied Git commits between %s and %s for end users and developers.
+Summarize the supplied Git commits between %s and %s as concise software release notes.
 
 Rules:
 - Return valid JSON only. Do not use Markdown or code fences.
 - Do not explain your reasoning.
 - The JSON must have exactly these fields: "summary", "features", "fixes", "changes", and "breaking_changes".
-- "summary" must be a concise string.
+- "summary" must be a concise string under 300 characters.
 - "features", "fixes", "changes", and "breaking_changes" must be arrays of concise strings.
+- Keep each release-note item under 200 characters.
 - Put new capabilities in "features", bug corrections in "fixes", improvements in "changes", and incompatible behavior in "breaking_changes".
-- Do not invent changes beyond the supplied commits. If a category has no entries, return an empty array.
+- Do not invent changes beyond the supplied commits.
+- If a category has no entries, return an empty array.
 - Combine related commits and ignore trivial formatting-only changes.
 - Conventional Commit types are useful hints: feat for features, fix for fixes, and refactor or perf for improvements. They are not absolute truth.
 
