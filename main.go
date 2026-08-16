@@ -46,6 +46,10 @@ func main() {
 		Git: internalgit.DefaultRepository{},
 		AI:  aiClient,
 	}
+	repositorySummaryService := aigit.RepositorySummaryService{
+		Git: internalgit.DefaultRepository{},
+		AI:  aiClient,
+	}
 
 	server := mcp.NewServer(
 		&mcp.Implementation{
@@ -214,6 +218,14 @@ func main() {
 			Description: "Generates structured release notes from a Git commit range",
 		},
 		gittools.NewGenerateReleaseNotes(releaseNotesService),
+	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "git_repository_summary",
+			Description: "Summarizes the current branch, recent work, and working changes of a Git repository",
+		},
+		gittools.NewRepositorySummary(repositorySummaryService),
 	)
 	mcp.AddTool(
 		server,

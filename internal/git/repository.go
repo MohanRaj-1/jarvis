@@ -21,6 +21,21 @@ type Repository interface {
 // DefaultRepository is the production Repository implementation.
 type DefaultRepository struct{}
 
+// CurrentBranch returns the name of the currently checked-out branch.
+func (DefaultRepository) CurrentBranch(repoPath string) (string, error) {
+	return CurrentBranch(repoPath)
+}
+
+// RepositoryStatus returns the current working tree status.
+func (DefaultRepository) RepositoryStatus(repoPath string) (*Status, error) {
+	return RepositoryStatus(repoPath)
+}
+
+// Log returns the most recent commits in the repository.
+func (DefaultRepository) Log(repoPath string, limit int) ([]Commit, error) {
+	return Log(repoPath, limit)
+}
+
 // Diff returns the working tree diff for repoPath.
 func (DefaultRepository) Diff(repoPath string) (string, error) {
 	return Diff(repoPath)
