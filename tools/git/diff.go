@@ -19,23 +19,13 @@ type DiffOutput struct {
 	Diff string `json:"diff"`
 }
 
-// DiffTool returns working tree diffs from its repository.
-type DiffTool struct {
-	repository internalgit.DefaultRepository
-}
-
-// NewDiffTool creates a diff tool using repository.
-func NewDiffTool(repository internalgit.DefaultRepository) DiffTool {
-	return DiffTool{repository: repository}
-}
-
 // Diff returns the current working tree diff for a Git repository.
-func (t DiffTool) Handle(
+func Diff(
 	ctx context.Context,
 	req *mcp.CallToolRequest,
 	in DiffInput,
 ) (*mcp.CallToolResult, DiffOutput, error) {
-	diff, err := t.repository.Diff(in.Path)
+	diff, err := internalgit.Diff(in.Path)
 	if err != nil {
 		return nil, DiffOutput{}, fmt.Errorf("get Git working tree diff: %w", err)
 	}

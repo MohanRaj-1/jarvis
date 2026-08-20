@@ -32,23 +32,13 @@ type ShowCommitOutput struct {
 	Files   []ChangedFileOutput `json:"files"`
 }
 
-// ShowCommitTool returns commit details from its repository.
-type ShowCommitTool struct {
-	repository internalgit.DefaultRepository
-}
-
-// NewShowCommitTool creates a show-commit tool using repository.
-func NewShowCommitTool(repository internalgit.DefaultRepository) ShowCommitTool {
-	return ShowCommitTool{repository: repository}
-}
-
 // ShowCommit returns detailed information about a Git commit.
-func (t ShowCommitTool) Handle(
+func ShowCommit(
 	ctx context.Context,
 	req *mcp.CallToolRequest,
 	in ShowCommitInput,
 ) (*mcp.CallToolResult, ShowCommitOutput, error) {
-	details, err := t.repository.Show(in.Path, in.Hash)
+	details, err := internalgit.Show(in.Path, in.Hash)
 	if err != nil {
 		return nil, ShowCommitOutput{}, fmt.Errorf("show Git commit: %w", err)
 	}

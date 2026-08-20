@@ -4,9 +4,8 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
-
-	internalworkspace "jarvis/internal/workspace"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
@@ -24,18 +23,8 @@ type ReadFileOutput struct {
 	Size    int64  `json:"size"`
 }
 
-// ReadFileTool reads files from its workspace.
-type ReadFileTool struct {
-	workspace internalworkspace.Workspace
-}
-
-// NewReadFileTool creates a read-file tool limited to w.
-func NewReadFileTool(w internalworkspace.Workspace) ReadFileTool {
-	return ReadFileTool{workspace: w}
-}
-
 // ReadFile reads a file up to the configured size limit.
-func (t ReadFileTool) Handle(
+func ReadFile(
 	ctx context.Context,
 	req *mcp.CallToolRequest,
 	in ReadFileInput,
@@ -44,10 +33,7 @@ func (t ReadFileTool) Handle(
 	if strings.TrimSpace(in.Path) == "" {
 		return nil, ReadFileOutput{}, fmt.Errorf("path is required; provide a path to a readable file")
 	}
-	cleanPath, err := t.workspace.Resolve(in.Path)
-	if err != nil {
-		return nil, ReadFileOutput{}, err
-	}
+	cleanPath := filepath.Clean(in.Path)
 
 	info, err := os.Stat(cleanPath)
 	if err != nil {

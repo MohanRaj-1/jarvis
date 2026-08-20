@@ -57,7 +57,7 @@ func TestShow(t *testing.T) {
 		t.Fatalf("create update commit: %v", err)
 	}
 
-	details, err := newTestRepository(t, repoPath).Show(repoPath, hash.String()[:7])
+	details, err := Show(repoPath, hash.String()[:7])
 	if err != nil {
 		t.Fatalf("Show(%q, %q): %v", repoPath, hash.String()[:7], err)
 	}
@@ -89,13 +89,12 @@ func TestShowRejectsInvalidOrEmptyHashAndInvalidRepository(t *testing.T) {
 	if _, err := gitlib.PlainInit(repoPath, false); err != nil {
 		t.Fatalf("PlainInit(%q): %v", repoPath, err)
 	}
-	repositoryService := newTestRepository(t, repoPath)
 	for _, hash := range []string{"", "not-a-commit"} {
-		if _, err := repositoryService.Show(repoPath, hash); err == nil {
+		if _, err := Show(repoPath, hash); err == nil {
 			t.Errorf("Show(%q, %q) returned nil error", repoPath, hash)
 		}
 	}
-	if _, err := repositoryService.Show(filepath.Join(t.TempDir(), "not-a-repository"), "abcdef1"); err == nil {
+	if _, err := Show(filepath.Join(t.TempDir(), "not-a-repository"), "abcdef1"); err == nil {
 		t.Error("Show with an invalid repository returned nil error")
 	}
 }
@@ -134,7 +133,7 @@ func TestShowReturnsAllMergeParents(t *testing.T) {
 		t.Fatalf("create merge commit: %v", err)
 	}
 
-	details, err := newTestRepository(t, repoPath).Show(repoPath, merge.String()[:7])
+	details, err := Show(repoPath, merge.String()[:7])
 	if err != nil {
 		t.Fatalf("Show merge commit: %v", err)
 	}

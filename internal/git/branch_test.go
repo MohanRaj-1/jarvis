@@ -23,7 +23,7 @@ func TestCurrentBranch(t *testing.T) {
 		t.Fatalf("set HEAD reference: %v", err)
 	}
 
-	branch, err := newTestRepository(t, repoPath).CurrentBranch(repoPath)
+	branch, err := CurrentBranch(repoPath)
 	if err != nil {
 		t.Fatalf("CurrentBranch(%q) returned an error: %v", repoPath, err)
 	}
@@ -34,10 +34,9 @@ func TestCurrentBranch(t *testing.T) {
 }
 
 func TestCurrentBranchRejectsInvalidRepositoryPath(t *testing.T) {
-	root := t.TempDir()
-	path := filepath.Join(root, "not-a-repository")
+	path := filepath.Join(t.TempDir(), "not-a-repository")
 
-	if _, err := newTestRepository(t, root).CurrentBranch(path); err == nil {
+	if _, err := CurrentBranch(path); err == nil {
 		t.Errorf("CurrentBranch(%q) returned nil error", path)
 	}
 }

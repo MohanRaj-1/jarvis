@@ -22,23 +22,13 @@ type StatusOutput struct {
 	Untracked []string `json:"untracked"`
 }
 
-// StatusTool returns the status of its repository.
-type StatusTool struct {
-	repository internalgit.DefaultRepository
-}
-
-// NewStatusTool creates a status tool using repository.
-func NewStatusTool(repository internalgit.DefaultRepository) StatusTool {
-	return StatusTool{repository: repository}
-}
-
 // RepositoryStatus returns the branch and changed files for a Git repository.
-func (t StatusTool) Handle(
+func RepositoryStatus(
 	ctx context.Context,
 	req *mcp.CallToolRequest,
 	in StatusInput,
 ) (*mcp.CallToolResult, StatusOutput, error) {
-	status, err := t.repository.RepositoryStatus(in.RepoPath)
+	status, err := internalgit.RepositoryStatus(in.RepoPath)
 	if err != nil {
 		return nil, StatusOutput{}, fmt.Errorf("get Git repository status: %w", err)
 	}

@@ -37,7 +37,7 @@ func TestDiff(t *testing.T) {
 	if _, err := worktree.Add("staged.txt"); err != nil {
 		t.Fatalf("add staged file: %v", err)
 	}
-	diff, err := newTestRepository(t, repoPath).Diff(repoPath)
+	diff, err := Diff(repoPath)
 	if err != nil {
 		t.Fatalf("Diff(%q) returned an error: %v", repoPath, err)
 	}
@@ -63,7 +63,7 @@ func TestDiffCleanRepository(t *testing.T) {
 		t.Fatalf("PlainInit(%q) returned an error: %v", repoPath, err)
 	}
 
-	diff, err := newTestRepository(t, repoPath).Diff(repoPath)
+	diff, err := Diff(repoPath)
 	if err != nil {
 		t.Fatalf("Diff(%q) returned an error: %v", repoPath, err)
 	}
@@ -73,10 +73,9 @@ func TestDiffCleanRepository(t *testing.T) {
 }
 
 func TestDiffRejectsInvalidRepository(t *testing.T) {
-	root := t.TempDir()
-	path := filepath.Join(root, "not-a-repository")
+	path := filepath.Join(t.TempDir(), "not-a-repository")
 
-	if _, err := newTestRepository(t, root).Diff(path); err == nil {
+	if _, err := Diff(path); err == nil {
 		t.Errorf("Diff(%q) returned nil error", path)
 	}
 }
@@ -84,7 +83,7 @@ func TestDiffRejectsInvalidRepository(t *testing.T) {
 func TestDiffRejectsNonGitDirectory(t *testing.T) {
 	path := t.TempDir()
 
-	if _, err := newTestRepository(t, path).Diff(path); err == nil {
+	if _, err := Diff(path); err == nil {
 		t.Errorf("Diff(%q) returned nil error", path)
 	}
 }

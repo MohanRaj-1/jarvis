@@ -25,12 +25,12 @@ type ChangedFile struct {
 
 // Show returns detailed information for hash in repoPath. File changes are
 // calculated relative to the first parent, matching Git's default commit view.
-func (r DefaultRepository) Show(repoPath, hash string) (*CommitDetails, error) {
+func Show(repoPath, hash string) (*CommitDetails, error) {
 	if strings.TrimSpace(hash) == "" {
 		return nil, fmt.Errorf("commit hash is required")
 	}
 
-	repository, cleanPath, err := r.openRepository(repoPath)
+	repository, cleanPath, err := openRepository(repoPath)
 	if err != nil {
 		return nil, err
 	}

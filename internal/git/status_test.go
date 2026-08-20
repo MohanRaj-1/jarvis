@@ -39,7 +39,7 @@ func TestRepositoryStatus(t *testing.T) {
 	}
 	writeStatusTestFile(t, repoPath, "untracked.txt", "untracked\n")
 
-	status, err := newTestRepository(t, repoPath).RepositoryStatus(repoPath)
+	status, err := RepositoryStatus(repoPath)
 	if err != nil {
 		t.Fatalf("RepositoryStatus(%q) returned an error: %v", repoPath, err)
 	}
@@ -58,10 +58,9 @@ func TestRepositoryStatus(t *testing.T) {
 }
 
 func TestRepositoryStatusRejectsInvalidRepositoryPath(t *testing.T) {
-	root := t.TempDir()
-	path := filepath.Join(root, "not-a-repository")
+	path := filepath.Join(t.TempDir(), "not-a-repository")
 
-	if _, err := newTestRepository(t, root).RepositoryStatus(path); err == nil {
+	if _, err := RepositoryStatus(path); err == nil {
 		t.Errorf("RepositoryStatus(%q) returned nil error", path)
 	}
 }

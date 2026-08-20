@@ -3,9 +3,8 @@ package git
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
-
-	internalworkspace "jarvis/internal/workspace"
 
 	gitlib "github.com/go-git/go-git/v5"
 )
@@ -20,26 +19,46 @@ type Repository interface {
 }
 
 // DefaultRepository is the production Repository implementation.
-type DefaultRepository struct {
-	workspace internalworkspace.Workspace
+type DefaultRepository struct{}
+
+// CurrentBranch returns the name of the currently checked-out branch.
+func (DefaultRepository) CurrentBranch(repoPath string) (string, error) {
+	return CurrentBranch(repoPath)
 }
 
-// NewDefaultRepository creates a Git repository implementation limited to workspace.
-func NewDefaultRepository(workspace internalworkspace.Workspace) DefaultRepository {
-	return DefaultRepository{workspace: workspace}
+// RepositoryStatus returns the current working tree status.
+func (DefaultRepository) RepositoryStatus(repoPath string) (*Status, error) {
+	return RepositoryStatus(repoPath)
+}
+
+// Log returns the most recent commits in the repository.
+func (DefaultRepository) Log(repoPath string, limit int) ([]Commit, error) {
+	return Log(repoPath, limit)
+}
+
+// Diff returns the working tree diff for repoPath.
+func (DefaultRepository) Diff(repoPath string) (string, error) {
+	return Diff(repoPath)
+}
+
+// Show returns details for hash in repoPath.
+func (DefaultRepository) Show(repoPath, hash string) (*CommitDetails, error) {
+	return Show(repoPath, hash)
+}
+
+// LogRange returns commits reachable from to but not from from.
+func (DefaultRepository) LogRange(repoPath, from, to string) ([]ReleaseCommit, error) {
+	return LogRange(repoPath, from, to)
 }
 
 // openRepository validates repoPath and opens the Git repository it contains.
 // It returns the cleaned path so callers can include it in operation-specific errors.
-func (r DefaultRepository) openRepository(repoPath string) (*gitlib.Repository, string, error) {
+func openRepository(repoPath string) (*gitlib.Repository, string, error) {
 	if strings.TrimSpace(repoPath) == "" {
 		return nil, "", fmt.Errorf("repository path is required")
 	}
 
-	cleanPath, err := r.workspace.Resolve(repoPath)
-	if err != nil {
-		return nil, "", err
-	}
+	cleanPath := filepath.Clean(repoPath)
 	info, err := os.Stat(cleanPath)
 	if err != nil {
 		return nil, "", fmt.Errorf("access repository path %q: %w", cleanPath, err)

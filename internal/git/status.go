@@ -16,8 +16,8 @@ type Status struct {
 }
 
 // RepositoryStatus returns the current branch and changed files in repoPath.
-func (r DefaultRepository) RepositoryStatus(repoPath string) (*Status, error) {
-	repository, cleanPath, err := r.openRepository(repoPath)
+func RepositoryStatus(repoPath string) (*Status, error) {
+	repository, cleanPath, err := openRepository(repoPath)
 	if err != nil {
 		return nil, err
 	}

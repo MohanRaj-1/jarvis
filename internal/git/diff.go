@@ -10,8 +10,8 @@ import (
 
 // Diff returns a unified diff between the repository's current HEAD and
 // working tree.
-func (r DefaultRepository) Diff(repoPath string) (string, error) {
-	repository, cleanPath, err := r.openRepository(repoPath)
+func Diff(repoPath string) (string, error) {
+	repository, cleanPath, err := openRepository(repoPath)
 	if err != nil {
 		return "", err
 	}

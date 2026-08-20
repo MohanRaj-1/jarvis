@@ -34,7 +34,7 @@ type ReleaseCommit struct {
 
 // Log returns the most recent commits in repoPath. A limit of zero uses the
 // default limit of 10.
-func (r DefaultRepository) Log(repoPath string, limit int) ([]Commit, error) {
+func Log(repoPath string, limit int) ([]Commit, error) {
 	if limit < 0 {
 		return nil, fmt.Errorf("commit log limit cannot be negative")
 	}
@@ -42,7 +42,7 @@ func (r DefaultRepository) Log(repoPath string, limit int) ([]Commit, error) {
 		limit = defaultLogLimit
 	}
 
-	repository, cleanPath, err := r.openRepository(repoPath)
+	repository, cleanPath, err := openRepository(repoPath)
 	if err != nil {
 		return nil, err
 	}
@@ -79,12 +79,12 @@ func (r DefaultRepository) Log(repoPath string, limit int) ([]Commit, error) {
 
 // LogRange returns commits reachable from to and not reachable from from,
 // equivalent to Git's "from..to" revision range.
-func (r DefaultRepository) LogRange(repoPath, from, to string) ([]ReleaseCommit, error) {
+func LogRange(repoPath, from, to string) ([]ReleaseCommit, error) {
 	if strings.TrimSpace(from) == "" || strings.TrimSpace(to) == "" {
 		return nil, fmt.Errorf("both range endpoints are required")
 	}
 
-	repository, cleanPath, err := r.openRepository(repoPath)
+	repository, cleanPath, err := openRepository(repoPath)
 	if err != nil {
 		return nil, err
 	}

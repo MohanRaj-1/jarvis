@@ -26,7 +26,7 @@ func TestRepositoryBranches(t *testing.T) {
 		t.Fatalf("set HEAD reference: %v", err)
 	}
 
-	result, err := newTestRepository(t, repoPath).RepositoryBranches(repoPath)
+	result, err := RepositoryBranches(repoPath)
 	if err != nil {
 		t.Fatalf("RepositoryBranches(%q) returned an error: %v", repoPath, err)
 	}

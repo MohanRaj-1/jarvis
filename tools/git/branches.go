@@ -20,23 +20,13 @@ type BranchesOutput struct {
 	Branches []string `json:"branches"`
 }
 
-// BranchesTool returns local branches from its repository.
-type BranchesTool struct {
-	repository internalgit.DefaultRepository
-}
-
-// NewBranchesTool creates a branches tool using repository.
-func NewBranchesTool(repository internalgit.DefaultRepository) BranchesTool {
-	return BranchesTool{repository: repository}
-}
-
 // RepositoryBranches returns the current branch and all local branches for a Git repository.
-func (t BranchesTool) Handle(
+func RepositoryBranches(
 	ctx context.Context,
 	req *mcp.CallToolRequest,
 	in BranchesInput,
 ) (*mcp.CallToolResult, BranchesOutput, error) {
-	branches, err := t.repository.RepositoryBranches(in.Path)
+	branches, err := internalgit.RepositoryBranches(in.Path)
 	if err != nil {
 		return nil, BranchesOutput{}, fmt.Errorf("get Git repository branches: %w", err)
 	}

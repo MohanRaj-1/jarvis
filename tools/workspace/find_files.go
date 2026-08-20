@@ -8,8 +8,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	internalworkspace "jarvis/internal/workspace"
-
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
@@ -24,18 +22,8 @@ type FindFilesOutput struct {
 	Paths []string `json:"paths"`
 }
 
-// FindFilesTool finds files in its workspace.
-type FindFilesTool struct {
-	workspace internalworkspace.Workspace
-}
-
-// NewFindFilesTool creates a file-finding tool limited to w.
-func NewFindFilesTool(w internalworkspace.Workspace) FindFilesTool {
-	return FindFilesTool{workspace: w}
-}
-
 // FindFiles recursively finds files matching a filepath glob.
-func (t FindFilesTool) Handle(
+func FindFiles(
 	ctx context.Context,
 	req *mcp.CallToolRequest,
 	in FindFilesInput,
@@ -47,10 +35,7 @@ func (t FindFilesTool) Handle(
 		return nil, FindFilesOutput{}, fmt.Errorf("pattern is required; provide a filepath glob such as *.go")
 	}
 
-	root, err := t.workspace.Resolve(in.Root)
-	if err != nil {
-		return nil, FindFilesOutput{}, err
-	}
+	root := filepath.Clean(in.Root)
 	pattern := filepath.FromSlash(in.Pattern)
 	info, err := os.Stat(root)
 	if err != nil {
