@@ -6,6 +6,7 @@ import (
 
 	internalanalyzer "jarvis/internal/analyzer"
 	"jarvis/internal/gofile"
+	internalworkspace "jarvis/internal/workspace"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
@@ -26,13 +27,28 @@ type AnalyzeGoFileOutput struct {
 	Todos      []internalanalyzer.Todo      `json:"todos"`
 }
 
+// AnalyzeGoFileTool analyzes Go source files in its workspace.
+type AnalyzeGoFileTool struct {
+	workspace internalworkspace.Workspace
+}
+
+// NewAnalyzeGoFileTool creates a Go-file analyzer limited to w.
+func NewAnalyzeGoFileTool(w internalworkspace.Workspace) AnalyzeGoFileTool {
+	return AnalyzeGoFileTool{workspace: w}
+}
+
 // AnalyzeGoFile returns structural information for a Go source file.
-func AnalyzeGoFile(
+func (t AnalyzeGoFileTool) Handle(
 	ctx context.Context,
 	req *mcp.CallToolRequest,
 	in AnalyzeGoFileInput,
 ) (*mcp.CallToolResult, AnalyzeGoFileOutput, error) {
-	path, err := gofile.ValidatePath(in.Path)
+	path, err := t.workspace.Resolve(in.Path)
+	if err != nil {
+		return nil, AnalyzeGoFileOutput{}, err
+	}
+
+	path, err = gofile.ValidatePath(path)
 	if err != nil {
 		return nil, AnalyzeGoFileOutput{}, err
 	}

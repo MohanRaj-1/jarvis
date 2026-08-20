@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
+
+	internalworkspace "jarvis/internal/workspace"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
@@ -24,8 +25,18 @@ type FileInfoOutput struct {
 	Modified string `json:"modified"`
 }
 
+// FileInfoTool returns metadata for paths in its workspace.
+type FileInfoTool struct {
+	workspace internalworkspace.Workspace
+}
+
+// NewFileInfoTool creates a file-info tool limited to w.
+func NewFileInfoTool(w internalworkspace.Workspace) FileInfoTool {
+	return FileInfoTool{workspace: w}
+}
+
 // FileInfo returns metadata for a file or directory.
-func FileInfo(
+func (t FileInfoTool) Handle(
 	ctx context.Context,
 	req *mcp.CallToolRequest,
 	in FileInfoInput,
@@ -34,7 +45,10 @@ func FileInfo(
 		return nil, FileInfoOutput{}, fmt.Errorf("path is required; provide a file or directory path")
 	}
 
-	cleanPath := filepath.Clean(in.Path)
+	cleanPath, err := t.workspace.Resolve(in.Path)
+	if err != nil {
+		return nil, FileInfoOutput{}, err
+	}
 	info, err := os.Stat(cleanPath)
 	if err != nil {
 		return nil, FileInfoOutput{}, fmt.Errorf("cannot access %q: %w", cleanPath, err)

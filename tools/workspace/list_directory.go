@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
+
+	internalworkspace "jarvis/internal/workspace"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
@@ -26,8 +27,18 @@ type ListDirectoryOutput struct {
 	Entries []DirectoryEntry `json:"entries"`
 }
 
+// ListDirectoryTool lists directories in its workspace.
+type ListDirectoryTool struct {
+	workspace internalworkspace.Workspace
+}
+
+// NewListDirectoryTool creates a directory-listing tool limited to w.
+func NewListDirectoryTool(w internalworkspace.Workspace) ListDirectoryTool {
+	return ListDirectoryTool{workspace: w}
+}
+
 // ListDirectory lists the immediate children of a directory.
-func ListDirectory(
+func (t ListDirectoryTool) Handle(
 	ctx context.Context,
 	req *mcp.CallToolRequest,
 	in ListDirectoryInput,
@@ -36,7 +47,10 @@ func ListDirectory(
 		return nil, ListDirectoryOutput{}, fmt.Errorf("path is required; provide a directory path")
 	}
 
-	cleanPath := filepath.Clean(in.Path)
+	cleanPath, err := t.workspace.Resolve(in.Path)
+	if err != nil {
+		return nil, ListDirectoryOutput{}, err
+	}
 
 	info, err := os.Stat(cleanPath)
 	if err != nil {
