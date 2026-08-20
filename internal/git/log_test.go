@@ -35,7 +35,7 @@ func TestLog(t *testing.T) {
 		commitTime = commitTime.Add(time.Minute)
 	}
 
-	commits, err := Log(repoPath, 1)
+	commits, err := newTestRepository(t, repoPath).Log(repoPath, 1)
 	if err != nil {
 		t.Fatalf("Log(%q, 1) returned an error: %v", repoPath, err)
 	}
@@ -59,17 +59,18 @@ func TestLogUsesDefaultLimitAndRejectsNegativeLimit(t *testing.T) {
 	if _, err := gitlib.PlainInit(repoPath, false); err != nil {
 		t.Fatalf("PlainInit(%q) returned an error: %v", repoPath, err)
 	}
-	commits, err := Log(repoPath, 0)
+	repository := newTestRepository(t, repoPath)
+	commits, err := repository.Log(repoPath, 0)
 	if err != nil {
 		t.Fatalf("Log(%q, 0) returned an error: %v", repoPath, err)
 	}
 	if len(commits) != 0 {
 		t.Errorf("Log(%q, 0) returned %d commits, want 0", repoPath, len(commits))
 	}
-	if _, err := Log(repoPath, -1); err == nil {
+	if _, err := repository.Log(repoPath, -1); err == nil {
 		t.Error("Log with a negative limit returned nil error")
 	}
-	if _, err := Log(filepath.Join(t.TempDir(), "not-a-repository"), 1); err == nil {
+	if _, err := repository.Log(filepath.Join(t.TempDir(), "not-a-repository"), 1); err == nil {
 		t.Error("Log with an invalid repository path returned nil error")
 	}
 }
@@ -101,7 +102,8 @@ func TestLogRange(t *testing.T) {
 	commit("C")
 	to := commit("D")
 
-	commits, err := LogRange(repoPath, from, to)
+	repositoryService := newTestRepository(t, repoPath)
+	commits, err := repositoryService.LogRange(repoPath, from, to)
 	if err != nil {
 		t.Fatalf("LogRange() error = %v", err)
 	}
@@ -111,7 +113,7 @@ func TestLogRange(t *testing.T) {
 	if len(commits[0].ChangedFiles) != 1 || commits[0].ChangedFiles[0].Status != "Modified" {
 		t.Errorf("LogRange().ChangedFiles = %#v, want one modified file", commits[0].ChangedFiles)
 	}
-	if _, err := LogRange(repoPath, "missing", "HEAD"); err == nil {
+	if _, err := repositoryService.LogRange(repoPath, "missing", "HEAD"); err == nil {
 		t.Error("LogRange() with an unknown start revision returned nil error")
 	}
 }
@@ -148,7 +150,7 @@ func TestLogRangeTagToHEAD(t *testing.T) {
 	commit("feature after release")
 	commit("fix after release")
 
-	commits, err := LogRange(repoPath, "v0.5.2", "HEAD")
+	commits, err := newTestRepository(t, repoPath).LogRange(repoPath, "v0.5.2", "HEAD")
 	if err != nil {
 		t.Fatalf("LogRange(v0.5.2, HEAD) returned an error: %v", err)
 	}
@@ -179,7 +181,7 @@ func TestLogRangeSameEndpoint(t *testing.T) {
 		t.Fatalf("commit file: %v", err)
 	}
 
-	commits, err := LogRange(repoPath, hash.String(), hash.String())
+	commits, err := newTestRepository(t, repoPath).LogRange(repoPath, hash.String(), hash.String())
 	if err != nil {
 		t.Fatalf("LogRange() error = %v", err)
 	}
