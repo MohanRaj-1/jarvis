@@ -14,8 +14,8 @@ type BranchesResult struct {
 }
 
 // RepositoryBranches returns the current branch and all local branches in repoPath.
-func RepositoryBranches(repoPath string) (*BranchesResult, error) {
-	repository, cleanPath, err := openRepository(repoPath)
+func (r DefaultRepository) RepositoryBranches(repoPath string) (*BranchesResult, error) {
+	repository, cleanPath, err := r.openRepository(repoPath)
 	if err != nil {
 		return nil, err
 	}

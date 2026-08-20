@@ -50,7 +50,7 @@ Jarvis can use the configured AI client to understand Git activity:
   `git_generate_commit_message`.
 - Explain commits with `git_explain_commit`.
 - Review working-tree diffs with `git_review_diff`.
-- Generate structured release notes with `git_release_notes`.
+- Generate structured release notes with `git_generate_release_notes`.
 - Generate a repository-level summary with `git_repository_summary`.
 
 The AI Git features use dependency injection, reusable prompt builders,
@@ -189,7 +189,7 @@ jarvis/
 | `git_generate_commit_message` | Generate a Conventional Commit message using AI.      |
 | `git_explain_commit`          | Explain a Git commit using AI.                        |
 | `git_review_diff`             | Review current Git changes using AI.                  |
-| `git_release_notes`           | Generate structured release notes for a commit range. |
+| `git_generate_release_notes`  | Generate structured release notes for a commit range. |
 | `git_repository_summary`      | Generate an AI summary of the repository state.       |
 | `hello` / `bye`               | Greeting utility tools.                               |
 | `add`                         | Addition utility tool.                                |
@@ -199,14 +199,33 @@ jarvis/
 
 ## Configuration
 
-Set the `GEMINI_API_KEY` environment variable before using the Gemini
-powered AI features.
+### Workspace
 
-Example:
+Jarvis restricts filesystem and Git operations to a configured workspace.
+Set `JARVIS_WORKSPACE_ROOT` to choose that workspace:
 
-```text
-GEMINI_API_KEY=<your-api-key>
+```powershell
+$env:JARVIS_WORKSPACE_ROOT="C:\Projects\my-project"
 ```
+
+If `JARVIS_WORKSPACE_ROOT` is not set, Jarvis uses the current working
+directory.
+
+### Gemini
+
+Set the Gemini API key before using Gemini-powered AI features:
+
+```powershell
+$env:GEMINI_API_KEY="your-api-key"
+```
+
+Optionally configure the model:
+
+```powershell
+$env:GEMINI_MODEL="gemini-3.6-flash"
+```
+
+Do not put an actual API key anywhere in the repository.
 
 The AI layer is designed around an injectable client abstraction, allowing
 the application to evolve toward additional AI providers without coupling

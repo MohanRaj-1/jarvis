@@ -9,6 +9,7 @@ import (
 	internalai "jarvis/internal/ai"
 	aigit "jarvis/internal/ai/git"
 	internalgit "jarvis/internal/git"
+	internalworkspace "jarvis/internal/workspace"
 	aitools "jarvis/tools/ai"
 	analyzertools "jarvis/tools/analyzer"
 	gittools "jarvis/tools/git"
@@ -21,6 +22,32 @@ import (
 )
 
 func main() {
+	workspaceRoot := strings.TrimSpace(os.Getenv("JARVIS_WORKSPACE_ROOT"))
+	if workspaceRoot == "" {
+		var err error
+		workspaceRoot, err = os.Getwd()
+		if err != nil {
+			log.Fatalf("determine workspace root: %v", err)
+		}
+	}
+	ws, err := internalworkspace.New(workspaceRoot)
+	if err != nil {
+		log.Fatalf("initialize workspace: %v", err)
+	}
+	readFileTool := workspacetools.NewReadFileTool(ws)
+	listDirectoryTool := workspacetools.NewListDirectoryTool(ws)
+	findFilesTool := workspacetools.NewFindFilesTool(ws)
+	fileInfoTool := workspacetools.NewFileInfoTool(ws)
+	analyzeImportsTool := analyzertools.NewAnalyzeImportsTool(ws)
+	analyzeGoFileTool := analyzertools.NewAnalyzeGoFileTool(ws)
+	repository := internalgit.NewDefaultRepository(ws)
+	currentBranchTool := gittools.NewCurrentBranchTool(repository)
+	statusTool := gittools.NewStatusTool(repository)
+	diffTool := gittools.NewDiffTool(repository)
+	branchesTool := gittools.NewBranchesTool(repository)
+	logTool := gittools.NewLogTool(repository)
+	showCommitTool := gittools.NewShowCommitTool(repository)
+
 	aiClient, err := internalai.NewClient(context.Background(), internalai.Config{
 		Provider: internalai.ProviderGemini,
 		APIKey:   os.Getenv("GEMINI_API_KEY"),
@@ -31,30 +58,30 @@ func main() {
 	}
 
 	commitMessageService := aigit.CommitMessageService{
-		Git: internalgit.DefaultRepository{},
+		Git: repository,
 		AI:  aiClient,
 	}
 	explainCommitService := aigit.ExplainCommitService{
-		Git: internalgit.DefaultRepository{},
+		Git: repository,
 		AI:  aiClient,
 	}
 	reviewDiffService := aigit.ReviewDiffService{
-		Git: internalgit.DefaultRepository{},
+		Git: repository,
 		AI:  aiClient,
 	}
 	releaseNotesService := aigit.ReleaseNotesService{
-		Git: internalgit.DefaultRepository{},
+		Git: repository,
 		AI:  aiClient,
 	}
 	repositorySummaryService := aigit.RepositorySummaryService{
-		Git: internalgit.DefaultRepository{},
+		Git: repository,
 		AI:  aiClient,
 	}
 
 	server := mcp.NewServer(
 		&mcp.Implementation{
 			Name:    "Jarvis",
-			Version: "0.1.0",
+			Version: "0.7.0",
 		},
 		nil,
 	)
@@ -97,7 +124,7 @@ func main() {
 			Name:        "read_file",
 			Description: "Reads the contents and size of a file up to 1 MB",
 		},
-		workspacetools.ReadFile,
+		readFileTool.Handle,
 	)
 	mcp.AddTool(
 		server,
@@ -105,7 +132,7 @@ func main() {
 			Name:        "list_directory",
 			Description: "Lists the immediate children of a directory",
 		},
-		workspacetools.ListDirectory,
+		listDirectoryTool.Handle,
 	)
 	mcp.AddTool(
 		server,
@@ -113,7 +140,7 @@ func main() {
 			Name:        "find_files",
 			Description: "Recursively finds files matching a filepath glob pattern",
 		},
-		workspacetools.FindFiles,
+		findFilesTool.Handle,
 	)
 	mcp.AddTool(
 		server,
@@ -121,7 +148,7 @@ func main() {
 			Name:        "file_info",
 			Description: "Returns metadata for a file or directory",
 		},
-		workspacetools.FileInfo,
+		fileInfoTool.Handle,
 	)
 	mcp.AddTool(
 		server,
@@ -129,7 +156,7 @@ func main() {
 			Name:        "analyze_imports",
 			Description: "Extracts import paths from a Go source file",
 		},
-		analyzertools.AnalyzeImports,
+		analyzeImportsTool.Handle,
 	)
 	mcp.AddTool(
 		server,
@@ -137,7 +164,7 @@ func main() {
 			Name:        "analyze_go_file",
 			Description: "Extracts imports and functions from a Go source file",
 		},
-		analyzertools.AnalyzeGoFile,
+		analyzeGoFileTool.Handle,
 	)
 	mcp.AddTool(
 		server,
@@ -145,7 +172,7 @@ func main() {
 			Name:        "git_current_branch",
 			Description: "Returns the current branch of a Git repository",
 		},
-		gittools.CurrentBranch,
+		currentBranchTool.Handle,
 	)
 	mcp.AddTool(
 		server,
@@ -153,7 +180,7 @@ func main() {
 			Name:        "git_status",
 			Description: "Returns the current branch and file status of a Git repository",
 		},
-		gittools.RepositoryStatus,
+		statusTool.Handle,
 	)
 	mcp.AddTool(
 		server,
@@ -161,7 +188,7 @@ func main() {
 			Name:        "git_diff",
 			Description: "Returns the current working tree diff of a Git repository",
 		},
-		gittools.Diff,
+		diffTool.Handle,
 	)
 	mcp.AddTool(
 		server,
@@ -169,7 +196,7 @@ func main() {
 			Name:        "git_branches",
 			Description: "Returns the current branch and all local branches of a Git repository",
 		},
-		gittools.RepositoryBranches,
+		branchesTool.Handle,
 	)
 	mcp.AddTool(
 		server,
@@ -177,7 +204,7 @@ func main() {
 			Name:        "git_log",
 			Description: "Returns the most recent commits in a Git repository",
 		},
-		gittools.Log,
+		logTool.Handle,
 	)
 	mcp.AddTool(
 		server,
@@ -185,7 +212,7 @@ func main() {
 			Name:        "git_show_commit",
 			Description: "Returns detailed information about a Git commit",
 		},
-		gittools.ShowCommit,
+		showCommitTool.Handle,
 	)
 	mcp.AddTool(
 		server,

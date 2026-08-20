@@ -30,13 +30,23 @@ type LogOutput struct {
 	Commits []CommitOutput `json:"commits"`
 }
 
+// LogTool returns commit history from its repository.
+type LogTool struct {
+	repository internalgit.DefaultRepository
+}
+
+// NewLogTool creates a log tool using repository.
+func NewLogTool(repository internalgit.DefaultRepository) LogTool {
+	return LogTool{repository: repository}
+}
+
 // Log returns the most recent commits for a Git repository.
-func Log(
+func (t LogTool) Handle(
 	ctx context.Context,
 	req *mcp.CallToolRequest,
 	in LogInput,
 ) (*mcp.CallToolResult, LogOutput, error) {
-	commits, err := internalgit.Log(in.Path, in.Limit)
+	commits, err := t.repository.Log(in.Path, in.Limit)
 	if err != nil {
 		return nil, LogOutput{}, fmt.Errorf("get Git repository log: %w", err)
 	}

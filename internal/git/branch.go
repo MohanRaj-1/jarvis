@@ -6,8 +6,8 @@ import (
 )
 
 // CurrentBranch returns the name of the branch currently checked out in repoPath.
-func CurrentBranch(repoPath string) (string, error) {
-	repository, cleanPath, err := openRepository(repoPath)
+func (r DefaultRepository) CurrentBranch(repoPath string) (string, error) {
+	repository, cleanPath, err := r.openRepository(repoPath)
 	if err != nil {
 		return "", err
 	}

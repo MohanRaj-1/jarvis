@@ -20,13 +20,23 @@ type CurrentBranchOutput struct {
 	Branch string `json:"branch"`
 }
 
+// CurrentBranchTool returns the current branch of its repository.
+type CurrentBranchTool struct {
+	repository internalgit.DefaultRepository
+}
+
+// NewCurrentBranchTool creates a current-branch tool using repository.
+func NewCurrentBranchTool(repository internalgit.DefaultRepository) CurrentBranchTool {
+	return CurrentBranchTool{repository: repository}
+}
+
 // CurrentBranch returns the current branch for a Git repository.
-func CurrentBranch(
+func (t CurrentBranchTool) Handle(
 	ctx context.Context,
 	req *mcp.CallToolRequest,
 	in CurrentBranchInput,
 ) (*mcp.CallToolResult, CurrentBranchOutput, error) {
-	branch, err := internalgit.CurrentBranch(in.RepoPath)
+	branch, err := t.repository.CurrentBranch(in.RepoPath)
 	if err != nil {
 		return nil, CurrentBranchOutput{}, fmt.Errorf("get current Git branch: %w", err)
 	}
